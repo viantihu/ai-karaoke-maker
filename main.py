@@ -812,7 +812,7 @@ def main():
                 print(f"\n✂️  Trimming first {trim_start} seconds...")
                 trimmed_file = 'temp_audio_trimmed.mp4'
                 subprocess.run([
-                    'ffmpeg', '-i', audio_file, '-ss', str(trim_start), '-c', 'copy', '-y', trimmed_file
+                    'ffmpeg', '-y', '-i', audio_file, '-ss', str(trim_start), '-c', 'copy', trimmed_file
                 ], capture_output=True, text=True)
                 os.remove(audio_file)
                 audio_file = trimmed_file
@@ -906,7 +906,7 @@ def main():
                 print(f"\n✂️  Trimming first {trim_start} seconds from audio...")
                 trimmed_file = 'audio_trimmed.mp4'
                 subprocess.run([
-                    'ffmpeg', '-i', audio_file, '-ss', str(trim_start), '-c', 'copy', '-y', trimmed_file
+                    'ffmpeg', '-y', '-i', audio_file, '-ss', str(trim_start), '-c', 'copy', trimmed_file
                 ], capture_output=True, text=True)
                 os.remove(audio_file)
                 audio_file = trimmed_file
@@ -921,7 +921,7 @@ def main():
                 # Extract audio to MP3 first
                 temp_audio_mp3 = "temp_audio_for_pitch.mp3"
                 subprocess.run([
-                    'ffmpeg', '-i', audio_file, '-vn', '-ab', '320k', '-y', temp_audio_mp3
+                    'ffmpeg', '-y', '-i', audio_file, '-vn', '-ab', '320k', temp_audio_mp3
                 ], capture_output=True, text=True)
                 
                 # Apply pitch shift
@@ -930,7 +930,7 @@ def main():
                 # Convert back to format suitable for merging
                 os.remove(audio_file)
                 subprocess.run([
-                    'ffmpeg', '-i', pitched_audio, '-c:a', 'aac', '-b:a', '320k', '-y', audio_file
+                    'ffmpeg', '-y', '-i', pitched_audio, '-c:a', 'aac', '-b:a', '320k', audio_file
                 ], capture_output=True, text=True)
                 
                 # Cleanup temp files
@@ -944,18 +944,23 @@ def main():
             
             print(f"\nMerging video and audio with ffmpeg...")
             
+            # Build FFmpeg command properly
             merge_command = [
                 'ffmpeg',
+                '-y',  # Overwrite output file if it exists (must come early)
                 '-i', video_file,
                 '-i', audio_file,
                 '-c:v', 'copy',
-                '-c:a', 'aac' if pitch_shift != 0 else 'copy',  # Re-encode audio if pitched
-                '-b:a', '320k' if pitch_shift != 0 else None,
-                '-y',  # Overwrite output file if it exists
-                output_filename
             ]
-            # Remove None values from command
-            merge_command = [x for x in merge_command if x is not None]
+            
+            # Add audio codec settings
+            if pitch_shift != 0:
+                merge_command.extend(['-c:a', 'aac', '-b:a', '320k'])
+            else:
+                merge_command.extend(['-c:a', 'copy'])
+            
+            # Add output filename
+            merge_command.append(output_filename)
             
             result = subprocess.run(merge_command, capture_output=True, text=True)
             
