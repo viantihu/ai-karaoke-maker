@@ -24,9 +24,7 @@ def cleanup_temp():
 def process_audio(audio_path):
     output = audio_path
     if karaoke:
-        # Use 'basic' mode for Streamlit Cloud (lighter, faster)
-        # For local use with more resources, change to mode="professional"
-        output = create_demucs_karaoke(audio_path, mode="basic")
+        output = create_demucs_karaoke(audio_path, mode="professional")
     if pitch != 0:
         output = adjust_pitch(output, pitch)
     return output
