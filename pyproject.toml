@@ -1,0 +1,29 @@
+[build-system][project]
+
+requires = ["setuptools"]name = "ai-karaoke-maker"
+
+build-backend = "setuptools.build_meta"version = "0.1.0"
+
+description = "AI-powered music processor: YouTube download, karaoke generation, and pitch shifting"
+
+[project]readme = "README.md"
+
+name = "ai-karaoke-maker"requires-python = ">=3.13"
+
+version = "0.1.0"dependencies = [
+
+description = "AI-powered music processor: YouTube download, karaoke generation, and pitch shifting"    "audio-separator>=0.39.1",
+
+requires-python = ">=3.9"    "onnxruntime>=1.23.1",
+
+dependencies = [    "streamlit>=1.24.1",
+
+    "audio-separator>=0.39.1",    "pytubefix>=10.0.0",
+
+    "onnxruntime>=1.23.1",    "ffmpeg-python>=0.2.1",
+
+    "streamlit>=1.24.1",]
+
+    "pytubefix>=10.0.0",
+    "ffmpeg-python>=0.2.1",
+]
