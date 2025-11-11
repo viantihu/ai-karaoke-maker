@@ -187,7 +187,7 @@ Use Professional mode for maximum vocal removal quality when producing final tra
 - First run downloads ~150MB Demucs model
 
 ### Professional Mode (CLI)
-**On M2 Max 32GB RAM:**
+**On M1 Max 32GB RAM:**
 
 | Song Length | Karaoke Only | Karaoke + Pitch |
 |-------------|--------------|-----------------|
