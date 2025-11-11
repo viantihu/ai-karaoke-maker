@@ -18,50 +18,6 @@ st.info("""
 **✨ You're using the Basic version** - Fast AI-powered vocal removal using Demucs, optimized for cloud deployment.
 """)
 
-# Expandable section explaining modes
-with st.expander("ℹ️ About Basic vs Professional Mode"):
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.markdown("### 🚀 Basic Mode (This Demo)")
-        st.markdown("""
-        **What you get:**
-        - ✅ Fast vocal removal using Demucs AI
-        - ✅ High-quality instrumental tracks
-        - ✅ Runs on Streamlit Cloud (free tier)
-        - ✅ Processing time: ~3-5 minutes per song
-        - ✅ Perfect for demos and testing
-
-        **Best for:**
-        - Quick karaoke creation
-        - Testing the tool online
-        - Most songs and genres
-        """)
-
-    with col2:
-        st.markdown("### 💎 Professional Mode")
-        st.markdown("""
-        **What you get:**
-        - ✅ Everything from Basic mode, plus:
-        - ✅ Dual AI models (Demucs + MDX-Net)
-        - ✅ Enhanced 4-step pipeline
-        - ✅ Maximum vocal removal quality
-        - ✅ Brightness & fullness preservation
-        - ✅ Studio-grade results
-
-        **Best for:**
-        - Professional use cases
-        - Maximum quality requirements
-        - Complex vocal arrangements
-
-        **⚠️ Requires:** Local installation with 32GB RAM
-        """)
-
-    st.markdown("---")
-    st.markdown("📖 **Learn more:** Check the [GitHub repository](https://github.com/viantihu/ai-karaoke-maker) for installation and professional mode setup.")
-
-st.markdown("---")
-
 # Main interface
 st.markdown("### 🎵 Process Your Music")
 
