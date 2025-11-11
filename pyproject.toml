@@ -1,7 +1,7 @@
 [project]
-name = "pytube"
+name = "ai-karaoke-maker"
 version = "0.1.0"
-description = "Add your description here"
+description = "AI-powered music processor: YouTube download, karaoke generation, and pitch shifting"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -9,4 +9,5 @@ dependencies = [
     "onnxruntime>=1.23.1",
     "streamlit>=1.24.1",
     "pytubefix>=10.0.0",
+    "ffmpeg-python>=0.2.1",
 ]
