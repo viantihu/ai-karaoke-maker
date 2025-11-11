@@ -1,22 +1,3 @@
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
- 
-# Provide a minimal [project] table so Streamlit's dependency installer can
-# discover project metadata and dependencies. This lists the runtime
-# dependencies (same as `requirements.txt`). Streamlit Cloud will install
-# these and then run `app.py`.
-
-[project]
-name = "ai-karaoke-maker"
-version = "0.1.0"
-description = "AI-powered music processor: YouTube download, karaoke generation, and pitch shifting"
-readme = "README.md"
-requires-python = ">=3.9"
-dependencies = [
-	"audio-separator>=0.39.1",
-	"onnxruntime>=1.23.1",
-	"streamlit>=1.24.1",
-	"pytubefix>=10.0.0",
-	"ffmpeg-python>=0.2.1",
-]
