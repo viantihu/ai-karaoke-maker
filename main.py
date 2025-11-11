@@ -34,33 +34,72 @@ def create_karaoke(audio_file, output_file):
         print(f"❌ Vocal removal failed: {result.stderr}")
         return False
 
-def create_demucs_karaoke(audio_path: str, mode: str = 'professional') -> str:
+def create_demucs_karaoke(audio_path: str, mode: str = 'basic') -> str:
     """
-    Create karaoke track using AI separation with enhanced 4-step pipeline.
-    
-    STEP 1: Demucs htdemucs_6s (6-stem: vocals/drums/bass/guitar/piano/other)
-    STEP 2: MDX-Net BS-Roformer (professional vocal isolation)  
-    STEP 3: Ensemble Blend (50% Demucs + 50% MDX-Net)
-    STEP 4: Enhanced Post-Process (brightness restoration + gentle polish)
-    
-    Result: Complete vocal removal with preserved brightness and fullness
-    
+    Create karaoke track using AI separation.
+
+    Modes:
+    - 'basic': Demucs only (faster, lighter, works on Streamlit Cloud free tier)
+    - 'professional': Full 4-step pipeline with Demucs + MDX-Net (requires more resources)
+
     Args:
         audio_path: Path to input audio file
-        mode: Processing mode (currently only 'professional' supported)
-        
+        mode: Processing mode ('basic' or 'professional')
+
     Returns:
         Path to final processed karaoke track
     """
-    print(f"\n🎤 Creating AI-powered karaoke (4-step enhanced pipeline)...")
-    print(f"   🎯 Mode: Complete vocal removal (pure instrumental)")
-    print(f"   ✨ Enhanced: Brightness restoration + fullness preservation")
-    
     base_name = os.path.splitext(audio_path)[0]
-    
+
+    # BASIC MODE: Demucs only (optimized for Streamlit Cloud)
+    if mode == 'basic':
+        print(f"\n🎤 Creating AI-powered karaoke (Demucs)...")
+        print(f"   🎯 Mode: Basic - Fast vocal removal")
+        print(f"   ✨ Optimized for Streamlit Cloud deployment")
+
+        # Use Demucs with --two-stems for faster processing
+        demucs_output = os.path.join(os.path.dirname(audio_path), 'separated', 'htdemucs', os.path.splitext(os.path.basename(audio_path))[0])
+        demucs_no_vocals = os.path.join(demucs_output, 'no_vocals.mp3')
+
+        if os.path.exists(demucs_no_vocals):
+            print(f"\n✅ Demucs output already exists, using cached version...")
+            print(f"   Using: {demucs_no_vocals}")
+        else:
+            print(f"\n📊 Running Demucs (2-stem separation)...")
+
+            result = subprocess.run(
+                [
+                    'demucs',
+                    '--two-stems=vocals',  # Only separate vocals/no_vocals (faster)
+                    '-n', 'htdemucs',      # Standard model (lighter than htdemucs_6s)
+                    '--mp3',               # Output as MP3
+                    '--mp3-bitrate=320',   # High quality
+                    audio_path
+                ],
+                timeout=7200,  # 2 hours max
+                text=True,
+                env={**os.environ, 'TORCH_HOME': os.path.expanduser('~/.cache/torch')}
+            )
+
+            if result.returncode != 0:
+                raise RuntimeError(f"Demucs failed with return code {result.returncode}")
+
+            if not os.path.exists(demucs_no_vocals):
+                raise FileNotFoundError(f"Demucs output not found at: {demucs_no_vocals}")
+
+            print(f"✅ Karaoke track created successfully!")
+
+        return demucs_no_vocals
+
+    # PROFESSIONAL MODE: Full 4-step pipeline
+    print(f"\n🎤 Creating AI-powered karaoke (4-step enhanced pipeline)...")
+    print(f"   🎯 Mode: Professional - Complete vocal removal")
+    print(f"   ✨ Enhanced: Brightness restoration + fullness preservation")
+    print(f"   ⚠️  Warning: Requires significant resources (not recommended for Streamlit Cloud free tier)")
+
     # Determine step labels
     total_steps = 4
-    
+
     # STEP 1: Demucs 6-stem separation (~30-40 minutes)
     demucs_output = os.path.join(os.path.dirname(audio_path), 'separated', 'htdemucs_6s', os.path.splitext(os.path.basename(audio_path))[0])
     demucs_no_vocals = os.path.join(demucs_output, 'no_vocals.mp3')
