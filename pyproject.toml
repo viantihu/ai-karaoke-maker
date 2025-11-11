@@ -2,21 +2,6 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-# Minimal pyproject: only build-system is present so Streamlit Cloud
-# will fall back to using `requirements.txt` for dependency installation.
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "ai-karaoke-maker"
-version = "0.1.0"
-description = "AI-powered music processor: YouTube download, karaoke generation, and pitch shifting"
-requires-python = ">=3.9"
-dependencies = [
-    "audio-separator>=0.39.1",
-    "onnxruntime>=1.23.1",
-    "streamlit>=1.24.1",
-    "pytubefix>=10.0.0",
-    "ffmpeg-python>=0.2.1",
-]
+# Keep this file minimal so Streamlit Cloud uses `requirements.txt` for
+# dependency installation. Do NOT define a [project] table here, otherwise
+# Streamlit may attempt to install the repository as a package.
