@@ -26,13 +26,13 @@ For advanced users who need the highest quality:
 
 ```bash
 # Install dependencies
-uv sync
+pip install -r requirements.txt
 
 # Create professional karaoke with full 4-step pipeline
-uv run main.py "song.mp3" --karaoke
+python main.py "song.mp3" --karaoke
 
 # Create karaoke with pitch adjustment
-uv run main.py "https://youtube.com/watch?v=..." --karaoke --pitch=-4
+python main.py "https://youtube.com/watch?v=..." --karaoke --pitch=-4
 ```
 
 ## 📊 Basic vs Professional Modes
@@ -96,13 +96,13 @@ The app will open in your browser at `http://localhost:8501`
 ### Professional Mode (CLI)
 
 **Requirements:**
-- Python 3.13+ with `uv` package manager
+- Python 3.8+
 - FFmpeg with Rubberband support
 - 16GB RAM minimum, 32GB recommended
 
 ```bash
-# Install dependencies with uv
-uv sync
+# Install dependencies
+pip install -r requirements.txt
 
 # Verify FFmpeg has Rubberband support (for professional mode)
 ffmpeg -filters | grep rubberband
@@ -144,16 +144,16 @@ ffmpeg -filters | grep rubberband
 
 ```bash
 # Create studio-grade karaoke
-uv run main.py "song.mp3" --karaoke
+python main.py "song.mp3" --karaoke
 
 # Create karaoke with pitch adjustment
-uv run main.py "https://youtube.com/watch?v=..." --karaoke --pitch=-4
+python main.py "https://youtube.com/watch?v=..." --karaoke --pitch=-4
 
 # Pitch-shift existing file
-uv run main.py "song.mp3" --pitch=-3
+python main.py "song.mp3" --pitch=-3
 
 # Download with trim
-uv run main.py "URL" --karaoke --trim-start=30
+python main.py "URL" --karaoke --trim-start=30
 ```
 
 ### Command-Line Options
@@ -169,7 +169,7 @@ uv run main.py "URL" --karaoke --trim-start=30
 
 ### 1️⃣ Create Karaoke for Your Vocal Range
 **Web App**: Upload song → Enable karaoke → Adjust pitch slider → Download
-**CLI**: `uv run main.py "song.mp3" --karaoke --pitch=-4`
+**CLI**: `python main.py "song.mp3" --karaoke --pitch=-4`
 
 **Result**: Pure instrumental track at comfortable singing pitch
 
@@ -368,7 +368,7 @@ The Basic mode web app is optimized for Streamlit Cloud deployment:
 
 Both Basic and Professional modes work locally:
 - **Basic Mode**: `streamlit run app.py`
-- **Professional Mode**: `uv run main.py <options>`
+- **Professional Mode**: `python main.py <options>`
 
 ## 📝 Project Structure
 
