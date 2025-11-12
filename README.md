@@ -45,7 +45,7 @@ python main.py "https://youtube.com/watch?v=..." --karaoke --pitch=-4
 | **Pitch Shifting** | ✅ Yes | ✅ Yes (with brightness compensation) |
 | **Interface** | Web UI | Command-line |
 | **Cloud Compatible** | ✅ Yes | ❌ No (requires local setup) |
-| **Best For** | Quick karaoke creation | Maximum quality production work |
+| **Best For** | Demonstration | Actual Karaoke Creation |
 
 ## ✨ Features
 
