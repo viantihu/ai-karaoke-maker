@@ -5,7 +5,37 @@ import os
 import sys
 import shutil
 import time
+import json
 from audio_separator.separator import Separator
+
+def get_audio_duration(audio_file):
+    """
+    Get the duration of an audio file in seconds using FFmpeg.
+
+    Args:
+        audio_file: Path to audio file
+
+    Returns:
+        Duration in seconds (float)
+    """
+    result = subprocess.run(
+        [
+            'ffprobe',
+            '-v', 'error',
+            '-show_entries', 'format=duration',
+            '-of', 'json',
+            audio_file
+        ],
+        capture_output=True,
+        text=True
+    )
+
+    if result.returncode != 0:
+        raise RuntimeError(f"Failed to get audio duration: {result.stderr}")
+
+    data = json.loads(result.stdout)
+    duration = float(data['format']['duration'])
+    return duration
 
 def create_karaoke(audio_file, output_file):
     """
@@ -393,6 +423,7 @@ def main():
         print("                    → Examples: --pitch=2 (up), --pitch=-3 (down)")
         print("")
         print("  --trim-start=N    Skip first N seconds (remove ads/intros)")
+        print("  --trim-end=N      Trim last N seconds (remove outros/ads)")
         print("")
         print("\n📁 OUTPUT:")
         print("  Default:          Highest quality video (up to 8K)")
@@ -444,6 +475,7 @@ def main():
         print("                    → Examples: --pitch=2 (up), --pitch=-3 (down)")
         print("")
         print("  --trim-start=N    Skip first N seconds (remove ads/intros)")
+        print("  --trim-end=N      Trim last N seconds (remove outros/ads)")
         print("")
         print("\n📁 OUTPUT:")
         print("  Default:          Highest quality video (up to 8K)")
@@ -476,7 +508,17 @@ def main():
                 print(f"⏩ Will skip first {trim_start} seconds")
             except:
                 print(f"⚠️  Invalid trim-start value, ignoring")
-    
+
+    # Check for trim end time
+    trim_end = 0
+    for arg in sys.argv:
+        if arg.startswith('--trim-end='):
+            try:
+                trim_end = int(arg.split('=')[1])
+                print(f"⏩ Will trim last {trim_end} seconds")
+            except:
+                print(f"⚠️  Invalid trim-end value, ignoring")
+
     # Check for pitch adjustment
     pitch_shift = 0
     for arg in sys.argv:
@@ -563,14 +605,38 @@ def main():
             print(f"\nDownloading audio stream...")
             
             audio_file = audio_stream.download(filename='temp_audio.mp4')
-            
+
             # Trim if requested
-            if trim_start > 0:
-                print(f"\n✂️  Trimming first {trim_start} seconds...")
+            if trim_start > 0 or trim_end > 0:
+                trim_msg = []
+                if trim_start > 0:
+                    trim_msg.append(f"first {trim_start} seconds")
+                if trim_end > 0:
+                    trim_msg.append(f"last {trim_end} seconds")
+                print(f"\n✂️  Trimming {' and '.join(trim_msg)}...")
+
                 trimmed_file = 'temp_audio_trimmed.mp4'
-                subprocess.run([
-                    'ffmpeg', '-y', '-i', audio_file, '-ss', str(trim_start), '-c', 'copy', trimmed_file
-                ], capture_output=True, text=True)
+                ffmpeg_cmd = ['ffmpeg', '-y']
+
+                # Add trim-start if specified
+                if trim_start > 0:
+                    ffmpeg_cmd.extend(['-ss', str(trim_start)])
+
+                ffmpeg_cmd.extend(['-i', audio_file])
+
+                # Add trim-end if specified (need to calculate duration)
+                if trim_end > 0:
+                    duration = get_audio_duration(audio_file)
+                    target_duration = duration - trim_start - trim_end
+                    if target_duration <= 0:
+                        print(f"⚠️  Error: Trim settings would result in zero or negative duration!")
+                        print(f"   Audio duration: {duration:.1f}s, trim-start: {trim_start}s, trim-end: {trim_end}s")
+                        sys.exit(1)
+                    ffmpeg_cmd.extend(['-t', str(target_duration)])
+
+                ffmpeg_cmd.extend(['-c', 'copy', trimmed_file])
+
+                subprocess.run(ffmpeg_cmd, capture_output=True, text=True)
                 os.remove(audio_file)
                 audio_file = trimmed_file
             
@@ -657,14 +723,38 @@ def main():
             
             print(f"\nDownloading audio stream...")
             audio_file = audio_stream.download(filename='audio.mp4')
-            
+
             # Trim if requested
-            if trim_start > 0:
-                print(f"\n✂️  Trimming first {trim_start} seconds from audio...")
+            if trim_start > 0 or trim_end > 0:
+                trim_msg = []
+                if trim_start > 0:
+                    trim_msg.append(f"first {trim_start} seconds")
+                if trim_end > 0:
+                    trim_msg.append(f"last {trim_end} seconds")
+                print(f"\n✂️  Trimming {' and '.join(trim_msg)} from audio...")
+
                 trimmed_file = 'audio_trimmed.mp4'
-                subprocess.run([
-                    'ffmpeg', '-y', '-i', audio_file, '-ss', str(trim_start), '-c', 'copy', trimmed_file
-                ], capture_output=True, text=True)
+                ffmpeg_cmd = ['ffmpeg', '-y']
+
+                # Add trim-start if specified
+                if trim_start > 0:
+                    ffmpeg_cmd.extend(['-ss', str(trim_start)])
+
+                ffmpeg_cmd.extend(['-i', audio_file])
+
+                # Add trim-end if specified (need to calculate duration)
+                if trim_end > 0:
+                    duration = get_audio_duration(audio_file)
+                    target_duration = duration - trim_start - trim_end
+                    if target_duration <= 0:
+                        print(f"⚠️  Error: Trim settings would result in zero or negative duration!")
+                        print(f"   Audio duration: {duration:.1f}s, trim-start: {trim_start}s, trim-end: {trim_end}s")
+                        sys.exit(1)
+                    ffmpeg_cmd.extend(['-t', str(target_duration)])
+
+                ffmpeg_cmd.extend(['-c', 'copy', trimmed_file])
+
+                subprocess.run(ffmpeg_cmd, capture_output=True, text=True)
                 os.remove(audio_file)
                 audio_file = trimmed_file
             

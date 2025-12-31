@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 import shutil
-from main import create_demucs_karaoke, adjust_pitch
+from main import create_demucs_karaoke, adjust_pitch, get_audio_duration
 
 st.set_page_config(
     page_title="AI Karaoke Maker - Basic Demo",
@@ -34,8 +34,13 @@ with col2:
     pitch = st.slider("🎵 Pitch Shift (semitones)", -12, 12, 0,
                      help="Adjust pitch to match your vocal range. 0 = no change")
 
-trim = st.number_input("✂️ Trim Start (seconds)", min_value=0, value=0,
-                      help="Skip the first N seconds (useful for removing intros/ads)")
+col1, col2 = st.columns(2)
+with col1:
+    trim_start = st.number_input("✂️ Trim Start (seconds)", min_value=0, value=0,
+                                 help="Skip the first N seconds (useful for removing intros/ads)")
+with col2:
+    trim_end = st.number_input("✂️ Trim End (seconds)", min_value=0, value=0,
+                               help="Remove the last N seconds (useful for removing outros/ads)")
 
 input_file = None
 youtube_url = None
@@ -110,9 +115,27 @@ if process_button:
                     else:
                         audio_file = audio_stream.download(filename="temp_youtube_audio.mp4")
                         # Trim if needed
-                        if trim > 0:
+                        if trim_start > 0 or trim_end > 0:
                             trimmed = "temp_youtube_audio_trimmed.mp4"
-                            os.system(f"ffmpeg -y -i '{audio_file}' -ss {trim} -c copy '{trimmed}'")
+                            cmd_parts = ['ffmpeg', '-y']
+
+                            # Add trim-start if specified
+                            if trim_start > 0:
+                                cmd_parts.extend(['-ss', str(trim_start)])
+
+                            cmd_parts.extend(['-i', audio_file])
+
+                            # Add trim-end if specified (calculate duration)
+                            if trim_end > 0:
+                                duration = get_audio_duration(audio_file)
+                                target_duration = duration - trim_start - trim_end
+                                if target_duration <= 0:
+                                    st.error(f"⚠️ Error: Trim settings would result in zero or negative duration! Audio duration: {duration:.1f}s")
+                                    st.stop()
+                                cmd_parts.extend(['-t', str(target_duration)])
+
+                            cmd_parts.extend(['-c', 'copy', trimmed])
+                            os.system(' '.join(f"'{p}'" if ' ' in str(p) else str(p) for p in cmd_parts))
                             os.remove(audio_file)
                             audio_file = trimmed
                         # Convert to mp3
@@ -151,9 +174,27 @@ if process_button:
                 else:
                     # Trim if needed
                     trimmed_file = input_file
-                    if trim > 0:
+                    if trim_start > 0 or trim_end > 0:
                         trimmed_file = f"trimmed_{input_file}"
-                        os.system(f"ffmpeg -y -i '{input_file}' -ss {trim} -c copy '{trimmed_file}'")
+                        cmd_parts = ['ffmpeg', '-y']
+
+                        # Add trim-start if specified
+                        if trim_start > 0:
+                            cmd_parts.extend(['-ss', str(trim_start)])
+
+                        cmd_parts.extend(['-i', input_file])
+
+                        # Add trim-end if specified (calculate duration)
+                        if trim_end > 0:
+                            duration = get_audio_duration(input_file)
+                            target_duration = duration - trim_start - trim_end
+                            if target_duration <= 0:
+                                st.error(f"⚠️ Error: Trim settings would result in zero or negative duration! Audio duration: {duration:.1f}s")
+                                st.stop()
+                            cmd_parts.extend(['-t', str(target_duration)])
+
+                        cmd_parts.extend(['-c', 'copy', trimmed_file])
+                        os.system(' '.join(f"'{p}'" if ' ' in str(p) else str(p) for p in cmd_parts))
                     output = process_audio(trimmed_file)
 
                     # Success message with download
