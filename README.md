@@ -63,7 +63,7 @@ python main.py "https://youtube.com/watch?v=..." --karaoke --pitch=-4
 ### 📥 YouTube Download
 - **Highest Quality**: Automatic selection of best available audio stream
 - **Format Conversion**: Converts to 320kbps MP3
-- **Trim Support**: Skip intro/ads with trim start option
+- **Trim Support**: Skip intro/ads with trim start/end options
 
 ### 🔄 File Processing
 - **Format Support**: MP3, WAV, FLAC, M4A, AAC, OGG
@@ -135,6 +135,7 @@ ffmpeg -filters | grep rubberband
    - Enable "Create Karaoke" to remove vocals
    - Adjust pitch slider (±12 semitones)
    - Set trim start time (skip intros/ads)
+   - Set trim end time (remove outros/ads)
 4. Click "Start Processing"
 5. Download your processed track when complete
 
@@ -153,7 +154,7 @@ python main.py "https://youtube.com/watch?v=..." --karaoke --pitch=-4
 python main.py "song.mp3" --pitch=-3
 
 # Download with trim
-python main.py "URL" --karaoke --trim-start=30
+python main.py "URL" --karaoke --trim-start=30 --trim-end=15
 ```
 
 ### Command-Line Options
@@ -163,6 +164,7 @@ python main.py "URL" --karaoke --trim-start=30
 | `--karaoke` | Create professional karaoke (4-step pipeline) | `--karaoke` |
 | `--pitch=N` | Adjust pitch by N semitones (±12) | `--pitch=-4` |
 | `--trim-start=N` | Skip first N seconds | `--trim-start=30` |
+| `--trim-end=N` | Trim last N seconds | `--trim-end=15` |
 | `--help` | Show help message | `--help` |
 
 ## 🎯 Use Cases
